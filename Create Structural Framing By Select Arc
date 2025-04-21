@@ -1,0 +1,66 @@
+import clr  # Common Language Runtime, .NET's execution environment
+import sys  # Fundamental Python library to manipulate the runtime environment
+# Load standard IronPython libraries
+sys.path.append('C:\Program Files\IronPython 2.7\Lib')
+import System  # Root namespace of .NET
+from System import Array  # .NET class for handling array information
+from System.Collections.Generic import *  # To handle generic collections
+# Add references to necessary Dynamo and Revit libraries
+clr.AddReference('ProtoGeometry')
+from Autodesk.DesignScript.Geometry import *  # Dynamo geometry library
+clr.AddReference("RevitNodes")
+import Revit
+clr.ImportExtensions(Revit.Elements)
+clr.ImportExtensions(Revit.GeometryConversion)
+clr.AddReference("RevitServices")
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+clr.AddReference("RevitAPI")
+clr.AddReference("RevitAPIUI")
+import Autodesk
+from Autodesk.Revit.DB import *  # Revit API classes
+from Autodesk.Revit.UI import *  # Revit API UI classes
+import math
+import Autodesk.Revit.DB as DB
+ 
+ 
+ 
+doc = DocumentManager.Instance.CurrentDBDocument
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app = uiapp.Application
+uidoc = uiapp.ActiveUIDocument
+# Prompt the user to pick the first face
+unit_factor = 304.8
+basisX = XYZ.BasisX
+basisY = XYZ.BasisY
+basisZ = XYZ.BasisZ
+ 
+ 
+## moved bars
+list1 = UnwrapElement(IN[1])
+points1 =[]
+for point in list1:
+    xyz_point = point.ToRevitType()#.ToPoint()
+    points1.append(xyz_point)
+    
+list2 = UnwrapElement(IN[2])
+points2 =[]
+for point in list2:
+    xyz_point = point.ToRevitType()#.ToPoint()
+    points2.append(xyz_point)#.ToXYZ()
+    
+list3 = UnwrapElement(IN[3])#.ToXYZ()s
+points3 =[]
+for point in list3:
+    xyz_point = point.ToRevitType()#.ToPoint()
+    points3.append(xyz_point)#.ToXYZ()
+    
+arcs = []
+for i in range(1,len(points1)-1):
+    arc = Autodesk.Revit.DB.Arc.Create(points1[i],points2[i],points3[i]).ToProtoType()
+    #out = points1[i],points2[i],points3[i]
+    arcs.append(arc)
+
+OUT = arcs
+ 
+ 
