@@ -1,0 +1,33 @@
+import clr
+import sys
+import System
+# Dynamo / Revit imports
+clr.AddReference("RevitServices")
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+clr.AddReference("RevitNodes")
+import Revit
+clr.ImportExtensions(Revit.Elements)
+clr.AddReference("RevitAPI")
+clr.AddReference("RevitAPIUI")
+import Autodesk
+from Autodesk.Revit.DB import *
+from Autodesk.Revit.DB.Structure import StructuralFramingUtils
+# Current document
+doc = DocumentManager.Instance.CurrentDBDocument
+# Input elements
+eles = UnwrapElement(IN[0])  # expects a list of structural framing elements
+# Start transaction
+TransactionManager.Instance.EnsureInTransaction(doc)
+dis_join_eles = []
+for ele in eles:
+# Disallow join at start (0) and end (1) if needed
+    try:
+        StructuralFramingUtils.DisallowJoinAtEnd(ele, 0)  # Start
+        StructuralFramingUtils.DisallowJoinAtEnd(ele, 1)  # End
+        dis_join_eles.append(ele)
+    except:
+        dis_join_eles.append("Failed: {}".format(ele.Id))
+# End transaction
+TransactionManager.Instance.TransactionTaskDone()
+OUT = dis_join_eles
